@@ -24,14 +24,12 @@ class TransacaoController extends Controller
             'status' => ['required', Rule::in(['Em processamento', 'Aprovada', 'Negada'])],
         ]);
 
-        $data['user_id'] = auth()->id();
-
         if ($request->hasFile('documento')) {
             $path = $request->file('documento')->store('documentos', 'public');
             $data['documento_path'] = $path;
         }
 
-        $transacao = Transacao::create($data);
+        $transacao = $request->user()->transacoes()->create($data);
 
         return new TransacaoResource($transacao);
     }
