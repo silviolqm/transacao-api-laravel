@@ -15,5 +15,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    Route::apiResource('transacoes', TransacaoController::class);
+    Route::post('/transacoes', [TransacaoController::class, 'store']);
+    Route::get('/transacoes', [TransacaoController::class, 'index']);
+    Route::get('/transacoes/{id}', [TransacaoController::class, 'show']);
+    Route::match(['put', 'patch'], '/transacoes/{id}', [TransacaoController::class, 'update']);
+    Route::delete('/transacoes/{id}', [TransacaoController::class, 'destroy']);
 });

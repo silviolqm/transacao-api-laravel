@@ -14,12 +14,21 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $users = User::factory(3)->create();
-
-        foreach ($users as $user) {
-            Transacao::factory(5)->create([
-                'user_id' => $user->id,
-            ]);
-        }
+        $user1 = User::factory()->create([
+            'name' => 'user1',
+            'email' => 'test1@test.com',
+            'password' => bcrypt('Password!1'),
+        ]);
+        $user2 = User::factory()->create([
+            'name' => 'user2',
+            'email' => 'test2@test.com',
+            'password' => bcrypt('Password!1'),
+        ]);
+        Transacao::factory(2)->create([
+            'user_id' => $user1->id,
+        ]);
+        Transacao::factory(2)->create([
+            'user_id' => $user2->id,
+        ]);
     }
 }

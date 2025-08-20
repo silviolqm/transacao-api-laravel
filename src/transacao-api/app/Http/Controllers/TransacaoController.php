@@ -34,19 +34,22 @@ class TransacaoController extends Controller
         return new TransacaoResource($transacao);
     }
 
-    public function show(Transacao $transacao)
+    public function show(Request $request, string $id)
     {
+        $transacao = $request->user()->transacoes()->findOrFail($id);
         return new TransacaoResource($transacao);
     }
 
-    public function update(Request $request, Transacao $transacao)
+    public function update(Request $request, string $id)
     {
         $data = $request->validate([
             'valor' => ['sometimes','required', 'numeric', 'min:0.01'],
             'cpf' => ['sometimes', 'required', 'string', 'max:14'],
-            'documento_path' => ['nullable', 'file', 'mimes:pdf,jpg,png', 'max:2048'],
+            'documento' => ['nullable', 'file', 'mimes:pdf,jpg,png', 'max:2048'],
             'status' => ['sometimes', 'required', Rule::in(['Em processamento', 'Aprovada', 'Negada'])],
         ]);
+
+        $transacao = $request->user()->transacoes()->findOrFail($id);
 
         if ($request->hasFile('documento')) {
             //Apaga o arquivo antigo
@@ -58,14 +61,27 @@ class TransacaoController extends Controller
             $data['documento_path'] = $path;
         }
 
+        // Remove 'documento' do array de dados para o banco
+        unset($data['documento']);
+
+        // Se nada chegou, retorna 422
+        if (empty($data)) {
+            return response()->json([
+                'message' => 'Nenhum campo válido enviado. Use pelo menos um de: valor, cpf, status, documento'
+            ], 422);
+        }
+
         $transacao->update($data);
 
         return new TransacaoResource($transacao);
     }
 
-    public function destroy(Transacao $transacao)
+    public function destroy(Request $request, string $id)
     {
-        $transacao->delete();
+        //$transacao->delete();
+        //$request->user()->transacoes()->delete($transacao);
+        $transacaoToDelete = $request->user()->transacoes()->findOrFail($id);
+        $transacaoToDelete->delete();
 
         return response()->noContent();
     }
